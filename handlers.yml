@@ -1,0 +1,27 @@
+#!/usr/bin/ansible-playbook
+ - hosts: localhost
+   vars_prompt:
+         name: httpd_content
+         prompt: enter value for httpd_content
+         private: false
+   become: true
+   tasks:
+   - name: install httpd
+     yum:
+      name: httpd
+      state: present
+   - name: create index.html
+     file:
+      path: /var/www/html/index.html
+      state: touch
+      mode: '0777'
+   - name: Insert content in httpd
+     shell: "echo {{httpd_content}} > /var/www/html/index.html"
+     notify: echo command
+   - name: start httpd
+     service:
+       name: httpd
+       state: started
+   handlers:  
+    - name: echo command
+      shell: "echo handlers is being executed" 
