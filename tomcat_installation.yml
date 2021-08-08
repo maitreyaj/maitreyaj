@@ -1,0 +1,29 @@
+#!/usr/bin/ansible-playbook
+ - hosts: localhost
+   vars:
+       tomcat_port: 8081
+       java_version: 1.8.0
+       tomcat_directory: /root/
+       java_name: java-1.8.0-openjdk
+       tomcat_version: 9.0.52
+       tomcat_url: https://mirrors.estointernet.in/apache/tomcat/tomcat-{{tomcat_version.split('.')[0]}}/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
+   become: true
+   tasks:
+   - name: Install java
+     yum: 
+      name: " {{java_name}} "
+      state: present 
+   - name: download tomcat
+     get_url: 
+        url: " {{tomcat_url}} " 
+        dest: "{{tomcat_directory}}" 
+   - name: extract tomcat
+     unarchive:  
+      src: /root/apache-tomcat-9.0.52.tar.gz
+      dest : /root/tomcat 
+   - name: change port number
+     template:
+      src: /root/server.xml.j2
+      dest: /root/tomcat/apache-tomcat-9.0.52/conf/server.xml
+   - name: start tomcat
+     shell: "nohup  /root/tomcat/apache-tomcat-9.0.52/bin/startup.sh  "
